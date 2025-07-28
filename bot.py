@@ -1874,7 +1874,7 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-@commands.command()
+@bot.command()
 async def createevent(ctx, *, args):
     """Create a scheduled event with an image.
     Format: Title, Description, Location, DD/MM/YY, HH:MM, HH:MM, ImageURL

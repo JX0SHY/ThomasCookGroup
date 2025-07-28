@@ -1890,20 +1890,25 @@ async def createevent(ctx, *, args):
 
     attachment = ctx.message.attachments[0]
 
-    # Safely decode content_type if needed
+    # SAFELY handle content_type
     content_type = attachment.content_type
-    if isinstance(content_type, bytes):
-        content_type = content_type.decode("utf-8")
-
-    if not isinstance(content_type, str):
-        await ctx.send("❌ Unexpected content type format.")
+    if content_type is None:
+        await ctx.send("❌ Unable to detect the file type. Make sure it's an actual image file.")
         return
 
-    if not content_type.startswith("image/"):
+    if isinstance(content_type, bytes):
+        try:
+            content_type = content_type.decode('utf-8')
+        except Exception:
+            await ctx.send("❌ Failed to decode file type.")
+            return
+
+    if not isinstance(content_type, str) or not content_type.startswith("image/"):
         await ctx.send("❌ The attached file must be an image.")
         return
 
     try:
+        # Parse date and time
         event_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
         start_time = datetime.datetime.strptime(start_time_str, "%H:%M").time()
         end_time = datetime.datetime.strptime(end_time_str, "%H:%M").time()
@@ -1911,12 +1916,12 @@ async def createevent(ctx, *, args):
         start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
         end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
-        # Read the image bytes and encode in base64 for the scheduled event
+        # Read and encode image
         image_bytes = await attachment.read()
         image_b64 = base64.b64encode(image_bytes).decode('utf-8')
         image_data = f"data:{content_type};base64,{image_b64}"
 
-        # Create the scheduled event with the image (note: 'image' arg, NOT 'cover_image')
+        # Create the scheduled event
         event = await ctx.guild.create_scheduled_event(
             name=title,
             description=description,
@@ -1925,14 +1930,13 @@ async def createevent(ctx, *, args):
             location=location,
             entity_type=discord.EntityType.external,
             privacy_level=discord.PrivacyLevel.guild_only,
-            image=image_data
+            image=image_data  # <-- correct argument
         )
 
         await ctx.send(f"✅ Event created: **{event.name}** with your attached image.")
 
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
-
 
 bot.run()
 

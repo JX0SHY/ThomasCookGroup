@@ -1831,6 +1831,37 @@ def main():
     bot = ModmailBot()
     bot.run()
 
+@bot.command()
+async def createflight(ctx, from_airport, to_airport, date, departure_time, arrival_time, *, group_airline):
+    message = f"""
+> **<:Pin:1143890557836472459>Flight Status**
+-# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.
+
+<:TakeoffIcon:1325511041206980738> From: {from_airport}    <:LandingIcon:1325511042973040720> To: {to_airport}
+<:Calendar:1325515768745693224> Date: {date}
+
+{departure_time} - {arrival_time}, nonstop  
+<:Heart:1222875528097173584> XX????  
+Operated by: {group_airline}
+
+Please check in all baggage at least 10 minutes prior to when the flight is meant to depart at the check in desks and counters.
+
+Carry-on baggage allowance:  
+Economy Class:  
+1 carry-on bag max. 6kg  
+Premium Class/Economy Plus:  
+1 carry-on bag max. 10kg  
+Hand luggage measurements: 55 x 40 x 20 cm
+
+If you have no baggage, carry on to security.
+
+For security reasons, Tour Operators and Airlines are required to provide specific data on all passengers to Border Control Agencies before your departure date.  
+**Please note: If you are travelling within 4 days of making your booking this information will be collected at check-in.**
+"""
+    await ctx.send(message)
+
+if __name__ == "__main__":
+    main()
 
 if __name__ == "__main__":
     main()

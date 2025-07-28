@@ -1869,15 +1869,6 @@ For security reasons, Tour Operators and Airlines are required to provide specif
     await ctx.send(message)
 
 import datetime
-import aiohttp
-from discord.ext import commands
-
-import datetime
-import aiohttp
-import discord
-from discord.ext import commands
-
-import datetime
 import discord
 from discord.ext import commands
 

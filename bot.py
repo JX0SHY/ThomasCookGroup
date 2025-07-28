@@ -1889,7 +1889,7 @@ For security reasons, Tour Operators and Airlines are required to provide specif
 async def setup(bot):
     await bot.add_cog(FlightCog(bot))
 
-bot.run
+bot.run()
 
 if __name__ == "__main__":
     main()

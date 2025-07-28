@@ -1828,9 +1828,6 @@ def main():
         )
         sys.exit(0)
 
-    bot = ModmailBot()
-    bot.run()
-
 bot = ModmailBot()
 
 @bot.command()

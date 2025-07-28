@@ -1868,48 +1868,55 @@ For security reasons, Tour Operators and Airlines are required to provide specif
 """
     await ctx.send(message)
 
+import datetime
+import aiohttp
+from discord.ext import commands
+
 @bot.command()
 async def createevent(ctx, *, args):
     parts = [arg.strip() for arg in args.split(",")]
     
-    if len(parts) != 6:
-        await ctx.send("❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime`")
+    if len(parts) != 7:
+        await ctx.send("❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime, ImageURL`")
         return
 
-    title, description, location, date_str, start_time_str, end_time_str = parts
+    title, description, location, date_str, start_time_str, end_time_str, image_url = parts
 
     try:
-        import datetime
-
+        # Parse date and time
         event_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
         start_time = datetime.datetime.strptime(start_time_str, "%H:%M").time()
         end_time = datetime.datetime.strptime(end_time_str, "%H:%M").time()
 
-        start_dt = datetime.datetime.combine(event_date, start_time)
-        end_dt = datetime.datetime.combine(event_date, end_time)
+        # Combine and convert to UTC
+        start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
+        end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
-        start_dt_utc = start_dt.astimezone(datetime.timezone.utc)
-        end_dt_utc = end_dt.astimezone(datetime.timezone.utc)
+        # Download image from URL
+        async with aiohttp.ClientSession() as session:
+            async with session.get(image_url) as resp:
+                if resp.status != 200:
+                    await ctx.send("❌ Could not download the image. Please check the URL.")
+                    return
+                image_bytes = await resp.read()
 
-        # Read image from file
-        with open("event_banner.png", "rb") as f:
-            image_bytes = f.read()
-
+        # Create the scheduled event
         event = await ctx.guild.create_scheduled_event(
             name=title,
             description=description,
-            start_time=start_dt_utc,
-            end_time=end_dt_utc,
+            start_time=start_dt,
+            end_time=end_dt,
             location=location,
             entity_type=discord.EntityType.external,
             privacy_level=discord.PrivacyLevel.guild_only,
             cover_image=image_bytes
         )
 
-        await ctx.send(f"✅ Event created: **{event.name}** with an image.")
+        await ctx.send(f"✅ Event created: **{event.name}** with image.")
 
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
+
 
 bot.run()
 

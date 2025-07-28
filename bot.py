@@ -1877,45 +1877,42 @@ import aiohttp
 import discord
 from discord.ext import commands
 
+import datetime
+import discord
+from discord.ext import commands
+
 @bot.command()
 async def createevent(ctx, *, args):
     parts = [arg.strip() for arg in args.split(",")]
     
-    if len(parts) != 7:
-        await ctx.send("❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime, ImageURL`")
+    if len(parts) != 6:
+        await ctx.send("❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime` and attach the image file.")
         return
 
-    title, description, location, date_str, start_time_str, end_time_str, image_url = parts
+    title, description, location, date_str, start_time_str, end_time_str = parts
 
-    # Helper to clean Discord image URL
-    def clean_discord_url(url):
-        if "media.discordapp.net" in url:
-            # Replace domain and strip query params
-            base = url.split("?")[0]
-            base = base.replace("media.discordapp.net", "cdn.discordapp.com")
-            return base
-        return url
+    # Check if there's exactly one attachment (the image)
+    if len(ctx.message.attachments) != 1:
+        await ctx.send("❌ Please attach exactly one image file with your command.")
+        return
+
+    attachment = ctx.message.attachments[0]
+
+    # Optional: check if the attachment is an image
+    if not attachment.content_type.startswith("image/"):
+        await ctx.send("❌ The attached file must be an image.")
+        return
 
     try:
-        # Parse date and time
         event_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
         start_time = datetime.datetime.strptime(start_time_str, "%H:%M").time()
         end_time = datetime.datetime.strptime(end_time_str, "%H:%M").time()
 
-        # Combine and convert to UTC
         start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
         end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
-        # Clean the image URL if needed
-        image_url = clean_discord_url(image_url)
-
-        # Download image bytes
-        async with aiohttp.ClientSession() as session:
-            async with session.get(image_url) as resp:
-                if resp.status != 200:
-                    await ctx.send("❌ Could not download the image. Please check the URL.")
-                    return
-                image_bytes = await resp.read()
+        # Download the image bytes from attachment
+        image_bytes = await attachment.read()
 
         # Create the scheduled event
         event = await ctx.guild.create_scheduled_event(
@@ -1929,11 +1926,10 @@ async def createevent(ctx, *, args):
             cover_image=image_bytes
         )
 
-        await ctx.send(f"✅ Event created: **{event.name}** with image.")
+        await ctx.send(f"✅ Event created: **{event.name}** with your attached image.")
 
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
-
 
 bot.run()
 

@@ -1869,34 +1869,22 @@ For security reasons, Tour Operators and Airlines are required to provide specif
 """
     await ctx.send(message)
 
-import base64
 import datetime
+import aiohttp
 import discord
 from discord.ext import commands
+
+bot = commands.Bot(command_prefix="?")
 
 @bot.command()
 async def createevent(ctx, *, args):
     parts = [arg.strip() for arg in args.split(",")]
 
-    if len(parts) != 6:
-        await ctx.send("❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime` and attach the image file.")
+    if len(parts) != 7:
+        await ctx.send("❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime, ImageURL`")
         return
 
-    title, description, location, date_str, start_time_str, end_time_str = parts
-
-    if len(ctx.message.attachments) != 1:
-        await ctx.send("❌ Please attach exactly one image file with your command.")
-        return
-
-    attachment = ctx.message.attachments[0]
-
-    # Check content_type correctly
-    content_type = attachment.content_type
-    print(f"Content-Type: {repr(content_type)}")
-
-    if not isinstance(content_type, str) or not content_type.startswith("image/"):
-        await ctx.send("❌ The attached file must be an image.")
-        return
+    title, description, location, date_str, start_time_str, end_time_str, image_url = parts
 
     try:
         event_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
@@ -1906,11 +1894,15 @@ async def createevent(ctx, *, args):
         start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
         end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
-        # Encode image to base64
-        image_bytes = await attachment.read()
-        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
-        image_data = f"data:{attachment.content_type};base64,{image_b64}"
+        # Download image from provided URL
+        async with aiohttp.ClientSession() as session:
+            async with session.get(image_url) as resp:
+                if resp.status != 200:
+                    await ctx.send("❌ Failed to download the image from the URL.")
+                    return
+                image_bytes = await resp.read()
 
+        # Create the scheduled event
         event = await ctx.guild.create_scheduled_event(
             name=title,
             description=description,
@@ -1919,14 +1911,13 @@ async def createevent(ctx, *, args):
             location=location,
             entity_type=discord.EntityType.external,
             privacy_level=discord.PrivacyLevel.guild_only,
-            image=image_data  # this is correct
+            image=image_bytes  # Correct param for discord.py 2.3.2
         )
 
-        await ctx.send(f"✅ Event created: **{event.name}** with your attached image.")
+        await ctx.send(f"✅ Event created: **{event.name}** with your image URL.")
 
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
-
 
 
 bot.run()

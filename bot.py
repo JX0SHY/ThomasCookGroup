@@ -1887,11 +1887,16 @@ async def createevent(ctx, *, args):
         await ctx.send("❌ Please attach exactly one image file with your command.")
         return
 
-    attachment = ctx.message.attachments[0]
+attachment = ctx.message.attachments[0]
 
-    if not attachment.content_type.startswith("image/"):
-        await ctx.send("❌ The attached file must be an image.")
-        return
+# Ensure content_type is a string before using startswith
+content_type = attachment.content_type
+if isinstance(content_type, bytes):
+    content_type = content_type.decode()
+
+if not content_type.startswith("image/"):
+    await ctx.send("❌ The attached file must be an image.")
+    return
 
     try:
         event_date = datetime.datetime.strptime(date_str, "%d/%m/%y")

@@ -1874,7 +1874,10 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix="?")
+intents = discord.Intents.default()
+intents.message_content = True  # Needed if you're using message content (e.g. commands or message reading)
+
+bot = commands.Bot(command_prefix="?", intents=intents)
 
 @bot.command()
 async def createevent(ctx, *, args):

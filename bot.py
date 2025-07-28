@@ -1831,44 +1831,35 @@ def main():
 bot = ModmailBot()
 
 import discord
-from discord.ext import commands
 from discord import app_commands
+from discord.ext import commands
 
-intents = discord.Intents.default()
-bot = commands.Bot(command_prefix="!", intents=intents)
+class FlightCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
 
-@bot.event
-async def on_ready():
-    print(f"✅ Logged in as {bot.user}")
-    try:
-        # Server-specific sync — replace with your actual server ID
-        guild = discord.Object(id=YOUR_SERVER_ID)  # 👈 REPLACE THIS
-        await bot.tree.sync(guild=guild)
-        print("✅ Slash commands synced to server.")
-    except Exception as e:
-        print(f"❌ Sync failed: {e}")
-
-@bot.tree.command(name="createflight", description="Create a new flight announcement", guild=discord.Object(id=YOUR_SERVER_ID))  # 👈 REPLACE AGAIN
-@app_commands.describe(
-    from_airport="Departure airport",
-    to_airport="Arrival airport",
-    date="Flight date (e.g., 28/07/25)",
-    departure_time="Departure time (e.g., 14:00)",
-    arrival_time="Arrival time (e.g., 16:30)",
-    flight_number="Flight number (e.g., TCX123)",
-    group_airline="Airline operating the flight"
-)
-async def createflight(
-    interaction: discord.Interaction,
-    from_airport: str,
-    to_airport: str,
-    date: str,
-    departure_time: str,
-    arrival_time: str,
-    flight_number: str,
-    group_airline: str,
-):
-    message = f"""
+    @app_commands.command(name="createflight", description="Create a new flight announcement")
+    @app_commands.describe(
+        from_airport="Departure airport",
+        to_airport="Arrival airport",
+        date="Flight date (e.g., 28/07/25)",
+        departure_time="Departure time (e.g., 14:00)",
+        arrival_time="Arrival time (e.g., 16:30)",
+        flight_number="Flight number or code (e.g., TCX123)",
+        group_airline="Airline operating this flight"
+    )
+    async def createflight(
+        self,
+        interaction: discord.Interaction,
+        from_airport: str,
+        to_airport: str,
+        date: str,
+        departure_time: str,
+        arrival_time: str,
+        flight_number: str,
+        group_airline: str,
+    ):
+        message = f"""
 > **<:Pin:1143890557836472459>Flight Status**
 -# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.
 
@@ -1893,9 +1884,12 @@ If you have no baggage, carry on to security.
 For security reasons, Tour Operators and Airlines are required to provide specific data on all passengers to Border Control Agencies before your departure date.  
 **Please note: If you are travelling within 4 days of making your booking this information will be collected at check-in.**
 """
-    await interaction.response.send_message(message)
+        await interaction.response.send_message(message)
 
-bot.run("MTIxNzUzNTE2NTUxMzg2MzE2OQ.GDakDf.H-HM2VRc9JWRJc48HKdI60-FXTSgj3QkfD3Kqk")  # 👈 REPLACE THIS
+async def setup(bot):
+    await bot.add_cog(FlightCog(bot))
+
+bot.run
 
 if __name__ == "__main__":
     main()

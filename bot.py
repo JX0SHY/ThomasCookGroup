@@ -1870,6 +1870,7 @@ For security reasons, Tour Operators and Airlines are required to provide specif
     await ctx.send(message)
 
 import datetime
+import base64
 import discord
 from discord.ext import commands
 
@@ -1878,7 +1879,9 @@ async def createevent(ctx, *, args):
     parts = [arg.strip() for arg in args.split(",")]
 
     if len(parts) != 6:
-        await ctx.send("❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime` and attach the image file.")
+        await ctx.send(
+            "❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime` and attach the image file."
+        )
         return
 
     title, description, location, date_str, start_time_str, end_time_str = parts
@@ -1887,16 +1890,16 @@ async def createevent(ctx, *, args):
         await ctx.send("❌ Please attach exactly one image file with your command.")
         return
 
-attachment = ctx.message.attachments[0]
+    attachment = ctx.message.attachments[0]
 
-# Ensure content_type is a string before using startswith
-content_type = attachment.content_type
-if isinstance(content_type, bytes):
-    content_type = content_type.decode()
+    # Ensure content_type is a string before using startswith
+    content_type = attachment.content_type
+    if isinstance(content_type, bytes):
+        content_type = content_type.decode()
 
-if not content_type.startswith("image/"):
-    await ctx.send("❌ The attached file must be an image.")
-    return
+    if not content_type.startswith("image/"):
+        await ctx.send("❌ The attached file must be an image.")
+        return
 
     try:
         event_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
@@ -1906,9 +1909,10 @@ if not content_type.startswith("image/"):
         start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
         end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
+        # Read image bytes and encode to base64 data URI
         image_bytes = await attachment.read()
         image_b64 = base64.b64encode(image_bytes).decode('utf-8')
-        image_data = f"data:{attachment.content_type};base64,{image_b64}"
+        image_data = f"data:{content_type};base64,{image_b64}"
 
         event = await ctx.guild.create_scheduled_event(
             name=title,
@@ -1918,7 +1922,7 @@ if not content_type.startswith("image/"):
             location=location,
             entity_type=discord.EntityType.external,
             privacy_level=discord.PrivacyLevel.guild_only,
-            image=image_data  # <--- use image, not cover_image
+            image=image_data  # use 'image' param with base64 data URI
         )
 
         await ctx.send(f"✅ Event created: **{event.name}** with your attached image.")

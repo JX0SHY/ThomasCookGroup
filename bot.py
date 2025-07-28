@@ -1868,6 +1868,49 @@ For security reasons, Tour Operators and Airlines are required to provide specif
 """
     await ctx.send(message)
 
+@bot.command()
+async def createevent(ctx, *, args):
+    parts = [arg.strip() for arg in args.split(",")]
+    
+    if len(parts) != 6:
+        await ctx.send("❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime`")
+        return
+
+    title, description, location, date_str, start_time_str, end_time_str = parts
+
+    try:
+        import datetime
+
+        event_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
+        start_time = datetime.datetime.strptime(start_time_str, "%H:%M").time()
+        end_time = datetime.datetime.strptime(end_time_str, "%H:%M").time()
+
+        start_dt = datetime.datetime.combine(event_date, start_time)
+        end_dt = datetime.datetime.combine(event_date, end_time)
+
+        start_dt_utc = start_dt.astimezone(datetime.timezone.utc)
+        end_dt_utc = end_dt.astimezone(datetime.timezone.utc)
+
+        # Read image from file
+        with open("event_banner.png", "rb") as f:
+            image_bytes = f.read()
+
+        event = await ctx.guild.create_scheduled_event(
+            name=title,
+            description=description,
+            start_time=start_dt_utc,
+            end_time=end_dt_utc,
+            location=location,
+            entity_type=discord.EntityType.external,
+            privacy_level=discord.PrivacyLevel.guild_only,
+            cover_image=image_bytes
+        )
+
+        await ctx.send(f"✅ Event created: **{event.name}** with an image.")
+
+    except Exception as e:
+        await ctx.send(f"❌ Error: {str(e)}")
+
 bot.run()
 
 if __name__ == "__main__":

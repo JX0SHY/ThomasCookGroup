@@ -1871,21 +1871,15 @@ For security reasons, Tour Operators and Airlines are required to provide specif
 
 import datetime
 import aiohttp
-import imghdr
 import discord
 from discord.ext import commands
 
-intents = discord.Intents.default()
-intents.message_content = True  # Required for reading message content
-
-bot = commands.Bot(command_prefix="?", intents=intents)
-
-@bot.command()
+@commands.command()
 async def createevent(ctx, *, args):
-    """Creates a scheduled event with image support. Format:
-    ?createevent Title, Description, Location, DD/MM/YY, HH:MM, HH:MM, ImageURL
+    """Create a scheduled event with an image.
+    Format: Title, Description, Location, DD/MM/YY, HH:MM, HH:MM, ImageURL
     """
-    # Split and validate input
+
     fields = [field.strip() for field in args.split(",")]
     if len(fields) != 7:
         await ctx.send("❌ Invalid format.\nUse: `?createevent Title, Description, Location, DD/MM/YY, StartTime, EndTime, ImageURL`")
@@ -1894,12 +1888,11 @@ async def createevent(ctx, *, args):
     title, description, location, date_str, start_str, end_str, image_url = fields
 
     try:
-        # Parse date and times
+        # Parse dates and times
         event_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
         start_time = datetime.datetime.strptime(start_str, "%H:%M").time()
         end_time = datetime.datetime.strptime(end_str, "%H:%M").time()
 
-        # Combine into UTC datetime objects
         start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
         end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
@@ -1910,17 +1903,15 @@ async def createevent(ctx, *, args):
                     await ctx.send("❌ Could not download the image from the provided URL.")
                     return
 
+                content_type = resp.headers.get("Content-Type", "")
+                if not content_type.startswith("image/png") and not content_type.startswith("image/jpeg"):
+                    await ctx.send("❌ Image must be PNG or JPEG.")
+                    return
+
                 image_bytes = await resp.read()
-
-        # Check image validity
-        image_type = imghdr.what(None, h=image_bytes)
-        if image_type not in ("png", "jpeg"):
-            await ctx.send("❌ Image must be a PNG or JPEG.")
-            return
-
-        if len(image_bytes) > 8 * 1024 * 1024:
-            await ctx.send("❌ Image file is too large. Maximum allowed size is 8MB.")
-            return
+                if len(image_bytes) > 8 * 1024 * 1024:
+                    await ctx.send("❌ Image is too large. Max 8MB allowed.")
+                    return
 
         # Create the event
         event = await ctx.guild.create_scheduled_event(
@@ -1937,9 +1928,9 @@ async def createevent(ctx, *, args):
         await ctx.send(f"✅ Event created: **{event.name}**")
 
     except ValueError as ve:
-        await ctx.send(f"❌ Date or time format is invalid. Use `DD/MM/YY` and `HH:MM`. Error: {ve}")
+        await ctx.send(f"❌ Invalid date or time format. Use `DD/MM/YY` and `HH:MM`. Error: {ve}")
     except Exception as e:
-        await ctx.send(f"❌ An unexpected error occurred: `{str(e)}`")
+        await ctx.send(f"❌ Unexpected error: `{str(e)}`")
 
 bot.run()
 

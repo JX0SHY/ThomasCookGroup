@@ -1859,6 +1859,10 @@ async def createflight(ctx, from_airport, to_airport, date, departure_time, arri
     """
     await ctx.send(message)
 
+@bot.command()
+async def ping(ctx):
+    await ctx.send("pong")
+
 bot.run()
 
 if __name__ == "__main__":

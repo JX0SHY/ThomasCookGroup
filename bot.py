@@ -1872,6 +1872,11 @@ import datetime
 import aiohttp
 from discord.ext import commands
 
+import datetime
+import aiohttp
+import discord
+from discord.ext import commands
+
 @bot.command()
 async def createevent(ctx, *, args):
     parts = [arg.strip() for arg in args.split(",")]
@@ -1881,6 +1886,15 @@ async def createevent(ctx, *, args):
         return
 
     title, description, location, date_str, start_time_str, end_time_str, image_url = parts
+
+    # Helper to clean Discord image URL
+    def clean_discord_url(url):
+        if "media.discordapp.net" in url:
+            # Replace domain and strip query params
+            base = url.split("?")[0]
+            base = base.replace("media.discordapp.net", "cdn.discordapp.com")
+            return base
+        return url
 
     try:
         # Parse date and time
@@ -1892,7 +1906,10 @@ async def createevent(ctx, *, args):
         start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
         end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
-        # Download image from URL
+        # Clean the image URL if needed
+        image_url = clean_discord_url(image_url)
+
+        # Download image bytes
         async with aiohttp.ClientSession() as session:
             async with session.get(image_url) as resp:
                 if resp.status != 200:

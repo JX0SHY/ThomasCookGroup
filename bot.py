@@ -1831,7 +1831,16 @@ def main():
 bot = ModmailBot()
 
 @bot.command()
-async def createflight(ctx, from_airport, to_airport, date, departure_time, arrival_time, flight_number, *, group_airline):
+async def createflight(ctx, *, args):
+    # Split the input by commas and strip spaces
+    parts = [arg.strip() for arg in args.split(",")]
+
+    if len(parts) != 7:
+        await ctx.send("❌ Invalid format. Use:\n`?createflight FROM, TO, DATE, DEPARTURE_TIME, ARRIVAL_TIME, FLIGHT_NUMBER, AIRLINE`")
+        return
+
+    from_airport, to_airport, date, departure_time, arrival_time, flight_number, group_airline = parts
+
     message = f"""
 > **<:Pin:1143890557836472459>Flight Status**
 -# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.
@@ -1858,7 +1867,6 @@ For security reasons, Tour Operators and Airlines are required to provide specif
 **Please note: If you are travelling within 4 days of making your booking this information will be collected at check-in.**
 """
     await ctx.send(message)
-
 
 bot.run()
 

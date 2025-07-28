@@ -1890,20 +1890,21 @@ async def createevent(ctx, *, args):
 
     attachment = ctx.message.attachments[0]
 
-    # SAFELY handle content_type
-    content_type = attachment.content_type
-    if content_type is None:
-        await ctx.send("❌ Unable to detect the file type. Make sure it's an actual image file.")
+    # Read image bytes
+    try:
+        image_bytes = await attachment.read()
+    except Exception:
+        await ctx.send("❌ Failed to read the image file.")
         return
 
-    if isinstance(content_type, bytes):
-        try:
-            content_type = content_type.decode('utf-8')
-        except Exception:
-            await ctx.send("❌ Failed to decode file type.")
-            return
+    # Try to guess content type if it's missing or incorrect
+    content_type = attachment.content_type
+    if not content_type or not isinstance(content_type, str):
+        # Default fallback
+        content_type = "image/png"
 
-    if not isinstance(content_type, str) or not content_type.startswith("image/"):
+    # Sanity check: make sure it's an image content type
+    if not str(content_type).startswith("image/"):
         await ctx.send("❌ The attached file must be an image.")
         return
 
@@ -1916,12 +1917,11 @@ async def createevent(ctx, *, args):
         start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
         end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
-        # Read and encode image
-        image_bytes = await attachment.read()
+        # Base64 encode the image
         image_b64 = base64.b64encode(image_bytes).decode('utf-8')
         image_data = f"data:{content_type};base64,{image_b64}"
 
-        # Create the scheduled event
+        # Create the event
         event = await ctx.guild.create_scheduled_event(
             name=title,
             description=description,
@@ -1930,7 +1930,7 @@ async def createevent(ctx, *, args):
             location=location,
             entity_type=discord.EntityType.external,
             privacy_level=discord.PrivacyLevel.guild_only,
-            image=image_data  # <-- correct argument
+            image=image_data  # This is the correct field
         )
 
         await ctx.send(f"✅ Event created: **{event.name}** with your attached image.")

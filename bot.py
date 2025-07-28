@@ -18,6 +18,7 @@ from types import SimpleNamespace
 
 import discord
 import isodate
+import base64
 from aiohttp import ClientSession, ClientResponseError
 from discord.ext import commands, tasks
 from discord.ext.commands.view import StringView
@@ -1875,21 +1876,19 @@ from discord.ext import commands
 @bot.command()
 async def createevent(ctx, *, args):
     parts = [arg.strip() for arg in args.split(",")]
-    
+
     if len(parts) != 6:
         await ctx.send("❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime` and attach the image file.")
         return
 
     title, description, location, date_str, start_time_str, end_time_str = parts
 
-    # Check if there's exactly one attachment (the image)
     if len(ctx.message.attachments) != 1:
         await ctx.send("❌ Please attach exactly one image file with your command.")
         return
 
     attachment = ctx.message.attachments[0]
 
-    # Optional: check if the attachment is an image
     if not attachment.content_type.startswith("image/"):
         await ctx.send("❌ The attached file must be an image.")
         return
@@ -1902,10 +1901,10 @@ async def createevent(ctx, *, args):
         start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
         end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
-        # Download the image bytes from attachment
         image_bytes = await attachment.read()
+        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+        image_data = f"data:{attachment.content_type};base64,{image_b64}"
 
-        # Create the scheduled event
         event = await ctx.guild.create_scheduled_event(
             name=title,
             description=description,
@@ -1914,17 +1913,13 @@ async def createevent(ctx, *, args):
             location=location,
             entity_type=discord.EntityType.external,
             privacy_level=discord.PrivacyLevel.guild_only,
-            cover_image=image_bytes
+            image=image_data  # <--- use image, not cover_image
         )
 
         await ctx.send(f"✅ Event created: **{event.name}** with your attached image.")
 
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
-
-@bot.command()
-async def version(ctx):
-    await ctx.send(f"discord.py version: {discord.__version__}")
 
 bot.run()
 

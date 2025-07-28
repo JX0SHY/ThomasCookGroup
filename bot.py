@@ -1869,8 +1869,8 @@ For security reasons, Tour Operators and Airlines are required to provide specif
 """
     await ctx.send(message)
 
-import datetime
 import base64
+import datetime
 import discord
 from discord.ext import commands
 
@@ -1890,15 +1890,11 @@ async def createevent(ctx, *, args):
 
     attachment = ctx.message.attachments[0]
 
-    # Force content_type to string safely
-    content_type_raw = attachment.content_type
-    content_type = str(content_type_raw) if content_type_raw else "image/png"
-
-    # Debug log (optional)
+    # Check content_type correctly
+    content_type = attachment.content_type
     print(f"Content-Type: {repr(content_type)}")
 
-    # Check if content type is image
-    if not content_type.startswith("image/"):
+    if not isinstance(content_type, str) or not content_type.startswith("image/"):
         await ctx.send("❌ The attached file must be an image.")
         return
 
@@ -1910,9 +1906,10 @@ async def createevent(ctx, *, args):
         start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
         end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
+        # Encode image to base64
         image_bytes = await attachment.read()
         image_b64 = base64.b64encode(image_bytes).decode('utf-8')
-        image_data = f"data:{content_type};base64,{image_b64}"
+        image_data = f"data:{attachment.content_type};base64,{image_b64}"
 
         event = await ctx.guild.create_scheduled_event(
             name=title,
@@ -1922,12 +1919,14 @@ async def createevent(ctx, *, args):
             location=location,
             entity_type=discord.EntityType.external,
             privacy_level=discord.PrivacyLevel.guild_only,
-            image=image_data
+            image=image_data  # this is correct
         )
 
         await ctx.send(f"✅ Event created: **{event.name}** with your attached image.")
+
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
+
 
 
 bot.run()

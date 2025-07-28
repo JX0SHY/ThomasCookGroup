@@ -1922,6 +1922,10 @@ async def createevent(ctx, *, args):
     except Exception as e:
         await ctx.send(f"❌ Error: {str(e)}")
 
+@bot.command()
+async def version(ctx):
+    await ctx.send(f"discord.py version: {discord.__version__}")
+
 bot.run()
 
 if __name__ == "__main__":

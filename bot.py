@@ -1871,41 +1871,58 @@ For security reasons, Tour Operators and Airlines are required to provide specif
 
 import datetime
 import aiohttp
+import imghdr
 import discord
 from discord.ext import commands
 
 intents = discord.Intents.default()
-intents.message_content = True  # Needed if you're using message content (e.g. commands or message reading)
+intents.message_content = True  # Required for reading message content
 
 bot = commands.Bot(command_prefix="?", intents=intents)
 
 @bot.command()
 async def createevent(ctx, *, args):
-    parts = [arg.strip() for arg in args.split(",")]
-
-    if len(parts) != 7:
-        await ctx.send("❌ Invalid format. Use:\n`?createevent Title, Description, Location, Date, StartTime, EndTime, ImageURL`")
+    """Creates a scheduled event with image support. Format:
+    ?createevent Title, Description, Location, DD/MM/YY, HH:MM, HH:MM, ImageURL
+    """
+    # Split and validate input
+    fields = [field.strip() for field in args.split(",")]
+    if len(fields) != 7:
+        await ctx.send("❌ Invalid format.\nUse: `?createevent Title, Description, Location, DD/MM/YY, StartTime, EndTime, ImageURL`")
         return
 
-    title, description, location, date_str, start_time_str, end_time_str, image_url = parts
+    title, description, location, date_str, start_str, end_str, image_url = fields
 
     try:
+        # Parse date and times
         event_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
-        start_time = datetime.datetime.strptime(start_time_str, "%H:%M").time()
-        end_time = datetime.datetime.strptime(end_time_str, "%H:%M").time()
+        start_time = datetime.datetime.strptime(start_str, "%H:%M").time()
+        end_time = datetime.datetime.strptime(end_str, "%H:%M").time()
 
+        # Combine into UTC datetime objects
         start_dt = datetime.datetime.combine(event_date, start_time).astimezone(datetime.timezone.utc)
         end_dt = datetime.datetime.combine(event_date, end_time).astimezone(datetime.timezone.utc)
 
-        # Download image from provided URL
+        # Download and validate image
         async with aiohttp.ClientSession() as session:
             async with session.get(image_url) as resp:
                 if resp.status != 200:
-                    await ctx.send("❌ Failed to download the image from the URL.")
+                    await ctx.send("❌ Could not download the image from the provided URL.")
                     return
+
                 image_bytes = await resp.read()
 
-        # Create the scheduled event
+        # Check image validity
+        image_type = imghdr.what(None, h=image_bytes)
+        if image_type not in ("png", "jpeg"):
+            await ctx.send("❌ Image must be a PNG or JPEG.")
+            return
+
+        if len(image_bytes) > 8 * 1024 * 1024:
+            await ctx.send("❌ Image file is too large. Maximum allowed size is 8MB.")
+            return
+
+        # Create the event
         event = await ctx.guild.create_scheduled_event(
             name=title,
             description=description,
@@ -1914,14 +1931,15 @@ async def createevent(ctx, *, args):
             location=location,
             entity_type=discord.EntityType.external,
             privacy_level=discord.PrivacyLevel.guild_only,
-            image=image_bytes  # Correct param for discord.py 2.3.2
+            image=image_bytes
         )
 
-        await ctx.send(f"✅ Event created: **{event.name}** with your image URL.")
+        await ctx.send(f"✅ Event created: **{event.name}**")
 
+    except ValueError as ve:
+        await ctx.send(f"❌ Date or time format is invalid. Use `DD/MM/YY` and `HH:MM`. Error: {ve}")
     except Exception as e:
-        await ctx.send(f"❌ Error: {str(e)}")
-
+        await ctx.send(f"❌ An unexpected error occurred: `{str(e)}`")
 
 bot.run()
 

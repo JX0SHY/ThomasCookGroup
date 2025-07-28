@@ -1831,7 +1831,7 @@ def main():
     bot = ModmailBot()
     bot.run()
 
-@bot.command()
+@client.command()
 async def createflight(ctx, from_airport, to_airport, date, departure_time, arrival_time, *, group_airline):
     message = f"""
 > **<:Pin:1143890557836472459>Flight Status**

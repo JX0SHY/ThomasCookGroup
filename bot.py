@@ -1830,36 +1830,9 @@ def main():
 
 bot = ModmailBot()
 
-import discord
-from discord import app_commands
-from discord.ext import commands
-
-class FlightCog(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-
-    @app_commands.command(name="createflight", description="Create a new flight announcement")
-    @app_commands.describe(
-        from_airport="Departure airport",
-        to_airport="Arrival airport",
-        date="Flight date (e.g., 28/07/25)",
-        departure_time="Departure time (e.g., 14:00)",
-        arrival_time="Arrival time (e.g., 16:30)",
-        flight_number="Flight number or code (e.g., TCX123)",
-        group_airline="Airline operating this flight"
-    )
-    async def createflight(
-        self,
-        interaction: discord.Interaction,
-        from_airport: str,
-        to_airport: str,
-        date: str,
-        departure_time: str,
-        arrival_time: str,
-        flight_number: str,
-        group_airline: str,
-    ):
-        message = f"""
+@bot.command()
+async def createflight(ctx, from_airport, to_airport, date, departure_time, arrival_time, *, group_airline):
+    message = f"""
 > **<:Pin:1143890557836472459>Flight Status**
 -# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.
 
@@ -1867,7 +1840,7 @@ class FlightCog(commands.Cog):
 <:Calendar:1325515768745693224> Date: {date}
 
 {departure_time} - {arrival_time}, nonstop  
-<:Heart:1222875528097173584> {flight_number}  
+<:Heart:1222875528097173584> XX????  
 Operated by: {group_airline}
 
 Please check in all baggage at least 10 minutes prior to when the flight is meant to depart at the check in desks and counters.
@@ -1884,10 +1857,8 @@ If you have no baggage, carry on to security.
 For security reasons, Tour Operators and Airlines are required to provide specific data on all passengers to Border Control Agencies before your departure date.  
 **Please note: If you are travelling within 4 days of making your booking this information will be collected at check-in.**
 """
-        await interaction.response.send_message(message)
+    await ctx.send(message)
 
-async def setup(bot):
-    await bot.add_cog(FlightCog(bot))
 
 bot.run()
 

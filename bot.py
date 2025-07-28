@@ -1831,7 +1831,7 @@ def main():
 bot = ModmailBot()
 
 @bot.command()
-async def createflight(ctx, from_airport, to_airport, date, departure_time, arrival_time, *, group_airline):
+async def createflight(ctx, from_airport, to_airport, date, departure_time, arrival_time, flight_number, *, group_airline):
     message = f"""
 > **<:Pin:1143890557836472459>Flight Status**
 -# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.
@@ -1840,7 +1840,7 @@ async def createflight(ctx, from_airport, to_airport, date, departure_time, arri
 <:Calendar:1325515768745693224> Date: {date}
 
 {departure_time} - {arrival_time}, nonstop  
-<:Heart:1222875528097173584> XX????  
+<:Heart:1222875528097173584> {flight_number}  
 Operated by: {group_airline}
 
 Please check in all baggage at least 10 minutes prior to when the flight is meant to depart at the check in desks and counters.

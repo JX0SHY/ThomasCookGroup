@@ -1966,6 +1966,36 @@ async def banner(ctx):
     except Exception as e:
         await ctx.send(f"❌ An error occurred: {e}")
 
+@bot.command()
+@commands.has_role("Support Team")  # Change this to match your role
+async def postflight(ctx, *, args):
+    await ctx.message.delete()
+
+    # Split and validate input
+    parts = [part.strip() for part in args.split(",")]
+    if len(parts) != 3:
+        await ctx.send("❌ Invalid format.\nUse:\n```?postflight FLIGHTCODE, DESTINATION, GAMELINK```")
+        return
+
+    flight_code, destination, game_link = parts
+
+    message = f"""> **<:Pin:1143890557836472459>Flight Status**
+-# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.
+
+Check-in for Thomas Cook Group Airlines flight **{flight_code}** to **{destination}** has now started.
+
+**Advice:**
+- You must be in the Roblox group to join the flight.
+- The right of removal is held if you are disruptive.
+- Speak to a member of staff if you have an issue.
+
+Click the link below to be taken to the game where the flight is taking place:
+
+{game_link}
+"""
+
+    await ctx.send(message)
+
 bot.run()
 
 if __name__ == "__main__":

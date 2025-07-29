@@ -1834,6 +1834,7 @@ bot = ModmailBot()
 @bot.command()
 @commands.has_role("Support Team")
 async def createflight(ctx, *, args):
+await ctx.message.delete()
     # Split the input by commas and strip spaces
     parts = [arg.strip() for arg in args.split(",")]
 
@@ -1878,6 +1879,7 @@ from discord.ext import commands
 @bot.command()
 @commands.has_role("Support Team")
 async def createevent(ctx, *, args):
+await ctx.message.delete()
     """Create a scheduled event with an image.
     Format: Title, Description, Location, DD/MM/YY, HH:MM, HH:MM, ImageURL
     """

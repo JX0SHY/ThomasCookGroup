@@ -1876,21 +1876,23 @@ import discord
 from discord.ext import commands
 
 @bot.command()
-@commands.has_role("Support Team")
+@commands.has_role("Support Team")  # Replace with your desired role
 async def createevent(ctx, *, args):
-   await ctx.message.delete()
     """Create a scheduled event with an image.
     Format: Title, Description, Location, DD/MM/YY, HH:MM, HH:MM, ImageURL
     """
+    await ctx.message.delete()
 
     fields = [field.strip() for field in args.split(",")]
     if len(fields) != 7:
-        await ctx.send("❌ Invalid format.\nUse: `?createevent Title, Description, Location, DD/MM/YY, StartTime, EndTime, ImageURL`")
+        await ctx.send("❌ Invalid format.\nUse:\n```?createevent Title, Description, Location, DD/MM/YY, StartTime, EndTime, ImageURL```")
         return
 
     title, description, location, date_str, start_str, end_str, image_url = fields
 
     try:
+        import datetime, aiohttp, discord
+
         # Parse dates and times
         event_date = datetime.datetime.strptime(date_str, "%d/%m/%y")
         start_time = datetime.datetime.strptime(start_str, "%H:%M").time()

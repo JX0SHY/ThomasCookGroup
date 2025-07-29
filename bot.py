@@ -1967,7 +1967,7 @@ async def banner(ctx):
         await ctx.send(f"❌ An error occurred: {e}")
 
 @bot.command()
-@commands.has_role("Flight Poster")
+@commands.has_role("Support Team")
 async def postflight(ctx, *, args):
     await ctx.message.delete()
 

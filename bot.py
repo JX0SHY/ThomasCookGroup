@@ -1982,8 +1982,8 @@ async def postflight(ctx, *, args):
     flight_code, destination, game_link = parts
 
     embed = discord.Embed(
-        title=f"<:Pin:1143890557836472459>Flight Status",  # This will appear large and bold at the top
         description=(
+            "> <:Pin:1143890557836472459>Flight Status"
             "-# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.\n\n"
             f"Check-in for Thomas Cook Group Airlines flight **{flight_code}** to **{destination}** has now started.\n\n"
             "**Advice:**\n"

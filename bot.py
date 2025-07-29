@@ -1992,7 +1992,7 @@ async def postflight(ctx, *, args):
             "- Speak to a member of staff if you have an issue.\n\n"
             "Click the button below to be taken to the game where the flight is taking place."
         ),
-        color=discord.Color.gold()
+        color=discord.Color.from_rgb(243, 139, 0)
     )
 
     embed.set_image(url="https://i.postimg.cc/wxSbjY5X/Schedule-Image.png")

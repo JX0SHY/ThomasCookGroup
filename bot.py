@@ -1978,19 +1978,21 @@ async def postflight(ctx, *, args):
 
     flight_code, destination, game_link = parts
 
-embed = discord.Embed(
+  embed = discord.Embed(
     title="<:Pin:1143890557836472459> Flight Status",
-    description=(
-        "<:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.\n\n"
-        f"Check-in for Thomas Cook Group Airlines flight **{flight_code}** to **{destination}** has now started.\n\n"
-        "**Advice:**\n"
-        "- You must be in the Roblox group to join the flight.\n"
-        "- The right of removal is held if you are disruptive.\n"
-        "- Speak to a member of staff if you have an issue.\n\n"
-        "Click the button below to be taken to the game where the flight is taking place."
-    ),
-    color=discord.Color.gold()
-)
+        description=(
+  description=(
+            "-# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.\n\n"
+            f"Check-in for Thomas Cook Group Airlines flight **{flight_code}** to **{destination}** has now started.\n\n"
+            "**Advice:**\n"
+            "- You must be in the Roblox group to join the flight.\n"
+            "- The right of removal is held if you are disruptive.\n"
+            "- Speak to a member of staff if you have an issue.\n\n"
+            "Click the button below to be taken to the game where the flight is taking place."
+        ),
+        color=discord.Color.gold()
+    )
+
 
 
     embed.set_image(url="https://i.postimg.cc/wxSbjY5X/Schedule-Image.png")

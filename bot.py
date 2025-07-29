@@ -1876,7 +1876,7 @@ import discord
 from discord.ext import commands
 
 @bot.command()
-@commands.has_role("Support Team")  # Replace with your desired role
+@commands.has_role("Support Team")  # Replace with your actual role name
 async def createevent(ctx, *, args):
     """Create a scheduled event with an image.
     Format: Title, Description, Location, DD/MM/YY, HH:MM, HH:MM, ImageURL
@@ -1930,12 +1930,14 @@ async def createevent(ctx, *, args):
             image=image_bytes
         )
 
-        await ctx.send(f"✅ Event created: **{event.name}**")
+        # Send a message with the link to the event
+        await ctx.send(f"✅ Event created: **{event.name}**\n🔗 {event.url}")
 
     except ValueError as ve:
         await ctx.send(f"❌ Invalid date or time format. Use `DD/MM/YY` and `HH:MM`. Error: {ve}")
     except Exception as e:
         await ctx.send(f"❌ Unexpected error: `{str(e)}`")
+
 
 bot.run()
 

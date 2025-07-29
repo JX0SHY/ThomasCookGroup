@@ -1966,12 +1966,14 @@ async def banner(ctx):
     except Exception as e:
         await ctx.send(f"❌ An error occurred: {e}")
 
+import discord
+from discord.ext import commands
+
 @bot.command()
-@commands.has_role("Support Team")  # Change this to match your role
+@commands.has_role("Support Team")  # Change to your role
 async def postflight(ctx, *, args):
     await ctx.message.delete()
 
-    # Split and validate input
     parts = [part.strip() for part in args.split(",")]
     if len(parts) != 3:
         await ctx.send("❌ Invalid format.\nUse:\n```?postflight FLIGHTCODE, DESTINATION, GAMELINK```")
@@ -1979,22 +1981,33 @@ async def postflight(ctx, *, args):
 
     flight_code, destination, game_link = parts
 
-    message = f"""> **<:Pin:1143890557836472459>Flight Status**
--# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.
+    embed = discord.Embed(
+        title="📌 Flight Status",
+        description=(
+            "-# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.\n\n"
+            f"Check-in for Thomas Cook Group Airlines flight **{flight_code}** to **{destination}** has now started.\n\n"
+            "**Advice:**\n"
+            "- You must be in the Roblox group to join the flight.\n"
+            "- The right of removal is held if you are disruptive.\n"
+            "- Speak to a member of staff if you have an issue.\n\n"
+            "Click the button below to be taken to the game where the flight is taking place."
+        ),
+        color=discord.Color.gold()
+    )
 
-Check-in for Thomas Cook Group Airlines flight **{flight_code}** to **{destination}** has now started.
+    embed.set_thumbnail(url="https://i.postimg.cc/wv1KYhqp/Divider.png")  # Optional visual
 
-**Advice:**
-- You must be in the Roblox group to join the flight.
-- The right of removal is held if you are disruptive.
-- Speak to a member of staff if you have an issue.
+    # Create button
+    view = discord.ui.View()
+    button = discord.ui.Button(
+        label="Join Flight",
+        style=discord.ButtonStyle.link,
+        url=game_link,
+        emoji="🔗"
+    )
+    view.add_item(button)
 
-Click the link below to be taken to the game where the flight is taking place:
-
-{game_link}
-"""
-
-    await ctx.send(message)
+    await ctx.send(embed=embed, view=view)
 
 bot.run()
 

@@ -1931,7 +1931,7 @@ async def createevent(ctx, *, args):
         )
 
         # Send a message with the link to the event
-        await ctx.send(f"✅ Event created: **{event.name}**\n🔗 {event.url}")
+        await ctx.send(f"**{event.name}**\n🔗 {event.url}")
 
     except ValueError as ve:
         await ctx.send(f"❌ Invalid date or time format. Use `DD/MM/YY` and `HH:MM`. Error: {ve}")

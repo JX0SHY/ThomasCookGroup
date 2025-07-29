@@ -1832,14 +1832,13 @@ def main():
 bot = ModmailBot()
 
 @bot.command()
-@commands.has_role("Support Team")
+@commands.has_role("Support Team")  # Replace with your actual role name
 async def createflight(ctx, *, args):
-   await ctx.message.delete()
-    # Split the input by commas and strip spaces
-    parts = [arg.strip() for arg in args.split(",")]
+    await ctx.message.delete()  # Deletes user's message
 
+    parts = [arg.strip() for arg in args.split(",")]
     if len(parts) != 7:
-        await ctx.send("❌ Invalid format. Use:\n`?createflight FROM, TO, DATE, DEPARTURE_TIME, ARRIVAL_TIME, FLIGHT_NUMBER, AIRLINE`")
+        await ctx.send("❌ Invalid format. Use:\n```?createflight FROM, TO, DATE, DEPARTURE_TIME, ARRIVAL_TIME, FLIGHT_NUMBER, AIRLINE```")
         return
 
     from_airport, to_airport, date, departure_time, arrival_time, flight_number, group_airline = parts

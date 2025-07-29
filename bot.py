@@ -1940,21 +1940,31 @@ async def createevent(ctx, *, args):
 
 import aiohttp
 import io
+from discord.ext import commands
 
 @bot.command()
-@commands.has_role("Banner Manager")
+@commands.has_role("Banner Manager")  # Adjust role as needed
 async def banner(ctx):
+    # Delete the user's command message
     await ctx.message.delete()
 
     url = "https://i.postimg.cc/wv1KYhqp/Divider.png"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
-            if resp.status != 200:
-                return await ctx.send("❌ Could not download the banner image.")
-            data = await resp.read()
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                if resp.status != 200:
+                    await ctx.send("❌ Could not download the banner image.")
+                    return
+                data = await resp.read()
 
-    file = discord.File(io.BytesIO(data), filename="Divider.png")
-    await ctx.send(file=file)
+        # Create a file-like object from the image bytes
+        file = discord.File(io.BytesIO(data), filename="Divider.png")
+
+        # Send the image file (this uploads it to Discord)
+        await ctx.send(file=file)
+
+    except Exception as e:
+        await ctx.send(f"❌ An error occurred: {e}")
 
 bot.run()
 

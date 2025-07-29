@@ -1938,6 +1938,11 @@ async def createevent(ctx, *, args):
     except Exception as e:
         await ctx.send(f"❌ Unexpected error: `{str(e)}`")
 
+@bot.command()
+@commands.has_role("Support Team")  # Replace with your desired role
+async def banner(ctx):
+    await ctx.message.delete()
+    await ctx.send("https://i.postimg.cc/wv1KYhqp/Divider.png")
 
 bot.run()
 

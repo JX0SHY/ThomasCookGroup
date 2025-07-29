@@ -1943,7 +1943,7 @@ import io
 from discord.ext import commands
 
 @bot.command()
-@commands.has_role("Banner Manager")  # Adjust role as needed
+@commands.has_role("Support Team")  # Adjust role as needed
 async def banner(ctx):
     # Delete the user's command message
     await ctx.message.delete()

@@ -1969,8 +1969,11 @@ async def banner(ctx):
 import discord
 from discord.ext import commands
 
+import discord
+from discord.ext import commands
+
 @bot.command()
-@commands.has_role("Support Team")  # Change to your role
+@commands.has_role("Support Team")
 async def postflight(ctx, *, args):
     await ctx.message.delete()
 
@@ -1982,7 +1985,7 @@ async def postflight(ctx, *, args):
     flight_code, destination, game_link = parts
 
     embed = discord.Embed(
-        title="📌 Flight Status",
+        title="<:Pin:1143890557836472459> Flight Status",
         description=(
             "-# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.\n\n"
             f"Check-in for Thomas Cook Group Airlines flight **{flight_code}** to **{destination}** has now started.\n\n"
@@ -1995,19 +1998,20 @@ async def postflight(ctx, *, args):
         color=discord.Color.gold()
     )
 
-    embed.set_thumbnail(url="https://i.postimg.cc/wv1KYhqp/Divider.png")  # Optional visual
+    # Set main image
+    embed.set_image(url="https://i.postimg.cc/wxSbjY5X/Schedule-Image.png")
 
-    # Create button
+    # Button without emoji
     view = discord.ui.View()
     button = discord.ui.Button(
-        label="Join Flight",
+        label="Join",
         style=discord.ButtonStyle.link,
-        url=game_link,
-        emoji="🔗"
+        url=game_link
     )
     view.add_item(button)
 
     await ctx.send(embed=embed, view=view)
+
 
 bot.run()
 

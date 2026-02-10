@@ -69,6 +69,51 @@ if sys.platform == "win32":
     except AttributeError:
         logger.error("Failed to use WindowsProactorEventLoopPolicy.", exc_info=True)
 
+@commands.command()
+@commands.has_role("Support Team")
+async def postflight(ctx, *, args):
+    await ctx.message.delete()
+
+    parts = [part.strip() for part in args.split(",")]
+    if len(parts) != 3:
+        await ctx.send(
+            "❌ Invalid format.\n"
+            "Use:\n```?postflight FLIGHTCODE, DESTINATION, GAMELINK```"
+        )
+        return
+
+    flight_code, destination, game_link = parts
+
+    embed = discord.Embed(
+        title=flight_code,
+        description=(
+            "> **<:Pin:1143890557836472459>Flight Status**\n\n"
+            "-# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.\n\n"
+            f"Check-in for Thomas Cook Group Airlines flight **{flight_code}** "
+            f"to **{destination}** has now started.\n\n"
+            "**Advice:**\n"
+            "- You must be in the Roblox group to join the flight.\n"
+            "- The right of removal is held if you are disruptive.\n"
+            "- Speak to a member of staff if you have an issue.\n\n"
+            "Click the button below to be taken to the game where the flight is taking place."
+        ),
+        color=discord.Color(int("f38b00", 16))
+    )
+
+    embed.set_image(
+        url="https://i.postimg.cc/wxSbjY5X/Schedule-Image.png"
+    )
+
+    view = discord.ui.View()
+    view.add_item(
+        discord.ui.Button(
+            label="Join",
+            style=discord.ButtonStyle.link,
+            url=game_link
+        )
+    )
+
+    await ctx.send(embed=embed, view=view)
 
 class ModmailBot(commands.Bot):
     def __init__(self):
@@ -2247,56 +2292,6 @@ def main():
                 )
         sys.exit(0)
 
-from discord.ext import commands
-import discord
-
-@commands.command()
-@commands.has_role("Support Team")
-async def postflight(ctx, *, args):
-    await ctx.message.delete()
-
-    parts = [part.strip() for part in args.split(",")]
-    if len(parts) != 3:
-        await ctx.send(
-            "❌ Invalid format.\n"
-            "Use:\n```?postflight FLIGHTCODE, DESTINATION, GAMELINK```"
-        )
-        return
-
-    flight_code, destination, game_link = parts
-
-    embed = discord.Embed(
-        title=flight_code,
-        description=(
-            "> **<:Pin:1143890557836472459>Flight Status**\n\n"
-            "-# <:ModernHeart:1222875570560565329> Don't Just Book it, Thomas Cook it.\n\n"
-            f"Check-in for Thomas Cook Group Airlines flight **{flight_code}** "
-            f"to **{destination}** has now started.\n\n"
-            "**Advice:**\n"
-            "- You must be in the Roblox group to join the flight.\n"
-            "- The right of removal is held if you are disruptive.\n"
-            "- Speak to a member of staff if you have an issue.\n\n"
-            "Click the button below to be taken to the game where the flight is taking place."
-        ),
-        color=discord.Color(int("f38b00", 16))
-    )
-
-    embed.set_image(
-        url="https://i.postimg.cc/wxSbjY5X/Schedule-Image.png"
-    )
-
-    view = discord.ui.View()
-    view.add_item(
-        discord.ui.Button(
-            label="Join",
-            style=discord.ButtonStyle.link,
-            url=game_link
-        )
-    )
-
-    await ctx.send(embed=embed, view=view)
-
-    
     # check discord version
     discord_version = "2.6.3"
     if discord.__version__ != discord_version:
